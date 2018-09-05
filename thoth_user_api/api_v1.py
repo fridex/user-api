@@ -333,7 +333,7 @@ def _get_document(adapter_class, analysis_id: str, namespace: str = None) -> tup
                 status = _OPENSHIFT.get_pod_status(analysis_id, namespace=namespace)
                 if 'terminated' in status:
                     return {
-                        'error': 'No results were computed as pod was terminated',
+                        'error': 'No results were computed as analysis was terminated',
                         'status': _status_report(status),
                         'parameters': parameters
                     }, 404
