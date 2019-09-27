@@ -535,17 +535,21 @@ def schedule_kebechet(body: dict):
     # TODO: Update documentation to include creation of environment variables corresponding to git service tokens
     # NOTE: Change for event dependent behaviour
     headers = connexion.request.headers
+    service, url = None, None
     if "X-GitHub-Event" in headers:
         service = "github"
-        url = body["repository"]["html-url"]
+        url = body.get("repository", {}).get("html-url")
     elif "X_GitLab_Event" in headers:
         service = "gitlab"
-        url = body["repository"]["homepage"]
+        url = body.get("repository", {})("homepage")
     elif "X_Pagure_Topic" in headers:
         service = "pagure"
         return {"error": "Pagure is currently not supported"}, 501
     else:
         return {"error": "This webhook is not supported"}, 501
+
+    if service is None or url is None:
+        return {"error": "Cannot parse webhook payload"}, 501
 
     parameters = {"service": service, "url": url}
     return _do_schedule(parameters, _OPENSHIFT.schedule_kebechet_run_url)
